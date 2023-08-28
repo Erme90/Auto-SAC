@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de senha SISE</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+    <!--Bootstrap CDN-->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+</head>
+
+<body>
+    <br>
+    <!--Texto de apresentação do sistema-->
+    <div class="container text-center">
+        <div class="card card-body">
+            <h1>BEM VINDO!</h1>
+            <h6>Preencha o formulário abaixo para gerar seu usuário e senha para acessar os seguintes sistemas UNICAMP:<br>
+                SISE, Email institucional...</h6>
+        </div>
+        
+        <!--Formulário onde recebe os dados do usuário-->
+        <br>
+
+        <div class="formulario">
+            <form id="campos_form" method="post" action="{% url 'gera-senha' %}" >
+
+                {% csrf_token %}
+
+            <div class="inputs">
+                <div class="label">
+                    <label for="{{ form.usuario_desejado.id_for_label }}" >Usuário desejado</label>
+                </div>                
+                <div>    
+                    
+                    {{ form.usuario_desejado }}
+                    {% if form.usuario_desejado.errors %}
+                        <p class="text-danger">{{ form.usuario_desejado.errors|join:", " }}</p>
+                    {% endif %}
+                </div>
+
+                <div class="label">
+                    <label for="{{ form.nome_completo.id_for_label }}" class="label">Nome completo</label>
+                </div>
+
+                <div>
+                    
+                    {{ form.nome_completo }}
+                    {% if form.nome_completo.errors %}
+                        <p class="text-danger">{{ form.nome_completo.errors|join:", "}}</p>
+                    {% endif %}                    
+                </div>
+
+                <div class="label">
+                    <label for="{{ form.matricula.id_for_label }}" class="label">Matricula</label>
+                </div>
+
+                <div div class="md-6">
+                   
+                    {{ form.matricula }}
+                    {% if form.matricula.errors %}
+                        <p class="text-danger">{{ form.matricula.errors|join:", "}}</p>
+                    {% endif %}
+                </div>
+
+                <div class="label">
+                    <label for="{{ form.email.id_for_label }}" class="label">Email</label>
+                </div>
+
+                <div class="col-md-12 mb-6">                    
+                    {{ form.email }}
+                    {% if form.email.errors %}
+                        <p class="text-danger">{{ form.email.errors|join:", "}}</p>
+                    {% endif %}
+                </div>
+
+                <div class="label">
+                    <label for="{{ form.vinculo.id_for_label }}" class="label">Vínculo</label>
+                </div>
+                <br>
+
+                <div class="col-md-12 mb-6">
+                    
+                    {{ form.vinculo }}
+                    {% if form.vinculo.errors %}
+                        <p class="text-danger">{{ form.vinculo.errors|join:", " }}</p>
+                    {% endif %}
+                </div>
+                <br>
+
+                <div class="col-md-12 mb-8">
+                    <button id="gerasenha" class="btn btn-primary" type="submit" name="executafuncao">Gerar senha
+                        provisória</button><br> <!--botão que gera a senha-->
+                </div>
+            </form>
+        </div>
+
+        <!--Mensagem de erro-->
+        <div role="alert" id="mensagem_de_erro">
+            {% if mensagem_erro %}
+                {% for message in messages %}
+                <p>{{ message }}</p>
+                {% endfor %}
+            {% endif %}
+        </div>
+        
+        <div id="card-contatos">            
+            <p>Dúvidas?<br>
+                Fone: (19) 3521-7360/ 3521-7068<br>
+                email: sac@hc.unicamp.br
+            </p>
+        </div>
+    </div>
+
+    <!--Rodapé-->
+    <div class="card-footer text-muted text-center">
+        <p>Desenvolvido por SAC-HC UNICAMP</p>
+    </div>
+</body>
+</html>
