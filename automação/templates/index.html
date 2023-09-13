@@ -34,65 +34,52 @@
 
                 {% csrf_token %}
 
-            <div class="inputs">
-                <div class="label">
-                    <label for="{{ form.usuario_desejado.id_for_label }}" >Usuário desejado</label>
-                </div>                
-                <div>    
-                    
-                    {{ form.usuario_desejado }}
-                    {% if form.usuario_desejado.errors %}
-                        <p class="text-danger">{{ form.usuario_desejado.errors|join:", " }}</p>
-                    {% endif %}
-                </div>
-
-                <div class="label">
-                    <label for="{{ form.nome_completo.id_for_label }}" class="label">Nome completo</label>
-                </div>
-
-                <div>
-                    
-                    {{ form.nome_completo }}
-                    {% if form.nome_completo.errors %}
-                        <p class="text-danger">{{ form.nome_completo.errors|join:", "}}</p>
-                    {% endif %}                    
-                </div>
-
-                <div class="label">
-                    <label for="{{ form.matricula.id_for_label }}" class="label">Matricula</label>
-                </div>
-
-                <div div class="md-6">
-                   
-                    {{ form.matricula }}
-                    {% if form.matricula.errors %}
-                        <p class="text-danger">{{ form.matricula.errors|join:", "}}</p>
-                    {% endif %}
-                </div>
-
-                <div class="label">
-                    <label for="{{ form.email.id_for_label }}" class="label">Email</label>
-                </div>
-
-                <div class="col-md-12 mb-6">                    
-                    {{ form.email }}
-                    {% if form.email.errors %}
-                        <p class="text-danger">{{ form.email.errors|join:", "}}</p>
-                    {% endif %}
-                </div>
-
-                <div class="label">
-                    <label for="{{ form.vinculo.id_for_label }}" class="label">Vínculo</label>
-                </div>
+                <div class="inputs">
+                    <div>
+                        {% if form.usuario_desejado.errors %}
+                            {{ form.usuario_desejado }}
+                            <p class="text-danger">{{ form.usuario_desejado.errors|join:", " }}</p>
+                        {% else %}
+                            <input type="text" id="{{ form.usuario_desejado.id_for_label }}" name="{{ form.usuario_desejado.name }}" placeholder="Usuário desejado">
+                        {% endif %}
+                    </div>
                 <br>
-
-                <div class="col-md-12 mb-6">
+                    <div>
+                        {% if form.nome_completo.errors %}
+                            {{ form.nome_completo }}
+                            <p class="text-danger">{{ form.nome_completo.errors|join:", " }}</p>
+                        {% else %}
+                            <input type="text" id="{{ form.nome_completo.id_for_label }}" name="{{ form.nome_completo.name }}" placeholder="Nome completo">
+                        {% endif %}
+                    </div>
+                <br>
+                    <div>
+                        {% if form.matricula.errors %}
+                            {{ form.matricula }}
+                            <p class="text-danger">{{ form.matricula.errors|join:", " }}</p>
+                        {% else %}
+                            <input type="text" id="{{ form.matricula.id_for_label }}" name="{{ form.matricula.name }}" placeholder="Matrícula">
+                        {% endif %}
+                    </div>
+                <br>
+                    <div>
+                        {% if form.email.errors %}
+                            {{ form.email }}
+                            <p class="text-danger">{{ form.email.errors|join:", " }}</p>
+                        {% else %}
+                            <input type="email" id="{{ form.email.id_for_label }}" name="{{ form.email.name }}" placeholder="Email">
+                        {% endif %}
+                    </div>
+                <br>
+                    <div class="col-md-12 mb-6">
                     
-                    {{ form.vinculo }}
-                    {% if form.vinculo.errors %}
-                        <p class="text-danger">{{ form.vinculo.errors|join:", " }}</p>
-                    {% endif %}
+                        {{ form.vinculo }}
+                        {% if form.vinculo.errors %}
+                            <p class="text-danger">{{ form.vinculo.errors|join:", " }}</p>
+                        {% endif %}
+                    </div>
                 </div>
+                
                 <br>
 
                 <div class="col-md-12 mb-8">
@@ -101,15 +88,18 @@
                 </div>
             </form>
         </div>
+        <br>
+        {% if msg_sucesso %}
+            <div class="alert alert-success">
+                {{msg_sucesso}}
+            </div>
+        {% endif %}
 
-        <!--Mensagem de erro-->
-        <div role="alert" id="mensagem_de_erro">
-            {% if mensagem_erro %}
-                {% for message in messages %}
-                <p>{{ message }}</p>
-                {% endfor %}
-            {% endif %}
-        </div>
+        {% if mensagem_erro %}
+            <div class="alert alert-danger" role="alert">
+                {{mensagem_erro}}
+            </div>        
+        {% endif %}
         
         <div id="card-contatos">            
             <p>Dúvidas?<br>
