@@ -9,8 +9,11 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.alert import Alert
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException, WebDriverException
-from time import sleep
+
 
 #Esta função renderiza (abre) a página para o usuário
 def index (request):
@@ -39,8 +42,8 @@ def autoriza_usuario():  #identificará o usuário criado para enviar o e-mail c
 
 #Esta função faz a execução do selenium para criação da senha nova (primeira senha) do SISE.
 def gera_senha(request):
-    print('clicou no botão')
-    print('A função foi ativada')
+    servico = Service(ChromeDriverManager().install()) #instala o driver mais recente do chrome para habilitar o acesso do selenium
+    navegador = webdriver.Chrome(service = servico)  #variavel que armazena o drive e o navegador que será utilizado
     if request.method == 'POST':
         form = Formulario(request.POST)
         if form.is_valid():
@@ -55,8 +58,7 @@ def gera_senha(request):
                 '''op_do_chrome = Options() ,options= op_do_chrome
                 op_do_chrome.add_argument('--headless') #faz com que a pagina web que será aberta, não apareça para o usuário.'''
 
-                servico = Service(ChromeDriverManager().install()) #instala o driver mais recente do chrome para habilitar o acesso do selenium
-                navegador = webdriver.Chrome(service = servico)  #variavel que armazena o drive e o navegador que será utilizado    
+                    
                 navegador.get('https://www1.sistemas.unicamp.br/SiSeCorp/publico/solicitacao_username/formsolicitacaousername.do')   #site que será automatizado.
                 navegador.find_element('xpath', '//*[@id="SolicitacaoUsernameActionForm"]/div/div[1]/div/div/div[2]/input[1]').send_keys(usuario_desejado)#preenche o campo de usuário desejado
                 
@@ -70,23 +72,27 @@ def gera_senha(request):
 
                 navegador.find_element('xpath', '//*[@id="SolicitacaoUsernameActionForm"]/div/div[1]/div/div/div[2]/input[2]').send_keys(email)#preenche o campo 'email'
                 navegador.find_element('xpath', '//*[@id="SolicitacaoUsernameActionForm"]/div/div[1]/div/div/div[3]/input[1]').click()#Clica no botão de envio do formulário
-                sleep(2) #tempo de espera, para que a página de confirmação da criação do usuário seja carregada.
                 
-                navegador.find_element('xpath', '//*[@id="ConfirmarSolicitacaoUsernameActionForm"]/div/div[1]/div/div/div[3]/input[1]').click()#confirma a criação do usuário.
+                print('1# - aperte enter para confirmar')
                 input()
+                print('confirmou o botão "enviar"')
+                navegador.find_element('xpath', '//*[@id="ConfirmarSolicitacaoUsernameActionForm"]/div/div[1]/div/div/div[3]/input[1]').click()#confirma a criação do usuário.
+                print('2# - aperte enter para confirmar')
+                input()
+                print('clicou no popup?')
                 
-                                    
-                print('TERMINOU O CÓDIGO AGORA VAI REDIRECIONAR')
-
+                popup = Alert(navegador)
+                popup.accept()
+                input()
+                print('terminou a tarefa')
+                navegador.quit()
+             
+               
                 #mensagem de sucesso, caso o usuário seja criado sem erros.             
                 msg = {
                     'msg_sucesso' : f'Usuário criado com sucesso! Siga as instruções enviadas para o email: {email}',
+                    
                 }
-
-                #caso seja efetuado o envio do formulário de forma correta, a própria função "chamará" a função que fará o envio da senha.
-                '''if msg:
-                    autoriza_usuario()
-                    print('chamou a função "autoriza_usuario')'''
 
                 return render(request, 'index.html', msg) #redireciona para a mesma página, porém com o aviso de "sucesso"
             
@@ -97,6 +103,8 @@ def gera_senha(request):
                 print(mensagem_erro)
                 form.add_error(None, mensagem_erro)
                 return render(request, 'index.html', {'form': form, 'mensagem_erro': mensagem_erro})
+            finally:
+                navegador.quit()
         else:
             form = Formulario() 
         return render(request, 'index.html', {'form': form})
