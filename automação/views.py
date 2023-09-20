@@ -32,8 +32,11 @@ class Formulario(forms.Form):
     email = forms.EmailField(required=True, error_messages={'required': 'Campo obrigatório.'})
     vinculo = forms.ChoiceField(choices=[('', 'Selecione um vínculo'),('Funcamp', 'Funcamp'), ('Unicamp', 'Unicamp')], required=True, error_messages={'required': 'Selecione um vinculo.'})
 
+
 #Esta função, será chamada pela função "gera_senha"
-def liberacao_de_senha():  #identificará o usuário criado para enviar o e-mail com as orientações
+
+def liberacao_de_senha(usuario_desejado):  #identificará o usuário criado para enviar o e-mail com as orientações
+    print(usuario_desejado)
     servico = Service(ChromeDriverManager().install()) #instala o driver mais recente do chrome para habilitar o acesso do selenium
     navegador = webdriver.Chrome(service = servico)  #variavel que armazena o drive e o navegador que será utilizado
     
@@ -41,10 +44,14 @@ def liberacao_de_senha():  #identificará o usuário criado para enviar o e-mail
     navegador.find_element('xpath', '/html/body/form/div/div/div/div/table[1]/tbody/tr[1]/td[2]/input').send_keys('ussonhc')
     navegador.find_element('xpath', '/html/body/form/div/div/div/div/table[1]/tbody/tr[2]/td[2]/input').send_keys('C@mpinas0804')
     navegador.find_element('xpath', '/html/body/form/div/div/div/div/table[2]/tbody/tr/td/table/tbody/tr/td[1]/input').click()
-    sleep(2.5)
-    pyautogui.moveTo(33,33, duration=1)
-    
-    
+
+    sleep(1.5)
+    input()
+    print('clicou no "radio"')
+
+    navegador.find_element("xpath", f"/html/body/form/table[2]/tbody/tr[13]/td[1]/input[@value='{usuario_desejado}']").click()
+    navegador.find_element('xpath', '/html/body/form/table[3]/tbody/tr/td/table/tbody/tr/td[1]/input').click()
+    input() 
 
 #Esta função faz a execução do selenium para criação da senha nova (primeira senha) do SISE.
 def gera_senha(request):
@@ -116,7 +123,7 @@ def gera_senha(request):
                     
                 }
                 print('enviou mensagem de "Sucesso"')
-                liberacao_de_senha()
+                liberacao_de_senha(usuario_desejado)
                 print('Ativou a função "liberação de senha"')
                 return render(request, 'index.html', msg) #redireciona para a mesma página, porém com o aviso de "sucesso"
             
@@ -133,34 +140,35 @@ def gera_senha(request):
             form = Formulario() 
         return render(request, 'index.html', {'form': form})
     
+  
+     
+
+
+
+#EMAIL AUTOMATICO
+def email():
+    resultado_tarefa = "teste concluído com sucesso"
+    detalhes = "A tarefa automatizada foi concluída sem problemas."
+
+
+    #variaveis com os dados do email
     
-    #Segunda parte da execução da senha inicial. Será onde o selenium irá procurar o usuário criado, para autorizar a criação:
+    assunto= 'Teste do projeto SAC'
+    texto_email = f'Resultado: {resultado_tarefa}\nDetalhes: {detalhes}'
+    remetente = 'emersonnascimento.freire@gmail.com' #este email enviará o email para o teste
+    destinatario = email #este email foi preenchido pelo usuário no form
+    print('pegou os dados do email')
+    
+    #Configuração do servidor para envio do email:
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend', print('EMAIL_BACKEND')
+    EMAIL_HOST = 'smtp.gmail.com', print('EMAIL_HOST')
+    EMAIL_PORT = 587, print('EMAIL_PORT')
+    EMAIL_USE_TLS = True, print('EMAIL_USE_TLS')
+    EMAIL_HOST_USER = 'emersonnascimento.freire@gmail.com', print('EMAIL_HOST_USER')
+    EMAIL_HOST_PASSWORD = '[e]91046344', print('EMAIL_HOST_PASSWORD')
 
+    #utilização da função 'send_mail'
+    print('Vai chamar a função "send_mail"')
 
-    '''#EMAIL AUTOMATICO
-        
-        resultado_tarefa = "teste concluído com sucesso"
-        detalhes = "A tarefa automatizada foi concluída sem problemas."
-
-
-        #variaveis com os dados do email
-        
-        assunto= 'Teste do projeto SAC'
-        texto_email = f'Resultado: {resultado_tarefa}\nDetalhes: {detalhes}'
-        remetente = 'emersonnascimento.freire@gmail.com' #este email enviará o email para o teste
-        destinatario = email #este email foi preenchido pelo usuário no form
-        print('pegou os dados do email')
-        
-        #Configuração do servidor para envio do email:
-        EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend', print('EMAIL_BACKEND')
-        EMAIL_HOST = 'smtp.gmail.com', print('EMAIL_HOST')
-        EMAIL_PORT = 587, print('EMAIL_PORT')
-        EMAIL_USE_TLS = True, print('EMAIL_USE_TLS')
-        EMAIL_HOST_USER = 'emersonnascimento.freire@gmail.com', print('EMAIL_HOST_USER')
-        EMAIL_HOST_PASSWORD = '[e]91046344', print('EMAIL_HOST_PASSWORD')
-
-        #utilização da função 'send_mail'
-        print('Vai chamar a função "send_mail"')
-
-        send_mail(assunto, texto_email, remetente, [destinatario], fail_silently=False)
-        print('email enviado')'''
+    send_mail(assunto, texto_email, remetente, [destinatario], fail_silently=False)
+    print('email enviado')
