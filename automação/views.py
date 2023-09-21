@@ -33,7 +33,7 @@ class Formulario(forms.Form):
     vinculo = forms.ChoiceField(choices=[('', 'Selecione um vínculo'),('Funcamp', 'Funcamp'), ('Unicamp', 'Unicamp')], required=True, error_messages={'required': 'Selecione um vinculo.'})
 
 
-#Esta função, será chamada pela função "gera_senha"
+#Esta função, será chamada pela função "gera_senha", para iniciar o processo de liberação e envio da senha ao usuário.
 
 def liberacao_de_senha(usuario_desejado):  #identificará o usuário criado para enviar o e-mail com as orientações
     print(usuario_desejado)
@@ -49,7 +49,7 @@ def liberacao_de_senha(usuario_desejado):  #identificará o usuário criado para
     input()
     print('clicou no "radio"')
 
-    navegador.find_element("xpath", f"/html/body/form/table[2]/tbody/tr[13]/td[1]/input[@value='{usuario_desejado}']").click()
+    navegador.find_element('xpath', f"//tr/td/input[@value='{usuario_desejado}']").click()
     navegador.find_element('xpath', '/html/body/form/table[3]/tbody/tr/td/table/tbody/tr/td[1]/input').click()
     input() 
 
@@ -123,7 +123,7 @@ def gera_senha(request):
                     
                 }
                 print('enviou mensagem de "Sucesso"')
-                liberacao_de_senha(usuario_desejado)
+                liberacao_de_senha(usuario_desejado) #chama a função para fazer a liberação da senha, após a criação do usuário.
                 print('Ativou a função "liberação de senha"')
                 return render(request, 'index.html', msg) #redireciona para a mesma página, porém com o aviso de "sucesso"
             
