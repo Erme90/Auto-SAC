@@ -13,10 +13,14 @@ from selenium.webdriver.common.alert import Alert
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException, WebDriverException
-import pyautogui
 from time import sleep
+import os
+from dotenv import load_dotenv
 
+load_dotenv(override=True)
 
+usuario = os.getenv('USER_ADM_SENHA')
+senha = os.getenv('SENHA_ADM_SENHA')
 #Esta função renderiza (abre) a página para o usuário
 def index (request):
     if request.method == 'GET':
@@ -33,28 +37,35 @@ class Formulario(forms.Form):
     vinculo = forms.ChoiceField(choices=[('', 'Selecione um vínculo'),('Funcamp', 'Funcamp'), ('Unicamp', 'Unicamp')], required=True, error_messages={'required': 'Selecione um vinculo.'})
 
 
-#Esta função, será chamada pela função "gera_senha", para iniciar o processo de liberação e envio da senha ao usuário.
+#Esta função, será chamada pela função "cria_usuario", para iniciar o processo de liberação e envio da senha ao usuário.
 
-def liberacao_de_senha(usuario_desejado):  #identificará o usuário criado para enviar o e-mail com as orientações
-    print(usuario_desejado)
+'''def liberacao_de_senha(usuario_desejado, senha, usuario):  #identificará o usuário criado para enviar o e-mail com as orientações
+    print('Chama a página')
+    input()
     servico = Service(ChromeDriverManager().install()) #instala o driver mais recente do chrome para habilitar o acesso do selenium
     navegador = webdriver.Chrome(service = servico)  #variavel que armazena o drive e o navegador que será utilizado
-    
-    navegador.get('https://www.sistemas.unicamp.br/servlet/pckSsegLiberacaoSenha.LiberacaoSenha')   #site que será automatizado.
-    navegador.find_element('xpath', '/html/body/form/div/div/div/div/table[1]/tbody/tr[1]/td[2]/input').send_keys('ussonhc')
-    navegador.find_element('xpath', '/html/body/form/div/div/div/div/table[1]/tbody/tr[2]/td[2]/input').send_keys('C@mpinas0804')
-    navegador.find_element('xpath', '/html/body/form/div/div/div/div/table[2]/tbody/tr/td/table/tbody/tr/td[1]/input').click()
-
-    sleep(1.5)
+    print('envia os dados de login do adm')
     input()
-    print('clicou no "radio"')
+    print('usuario')
+    navegador.get('https://www.sistemas.unicamp.br/servlet/pckSsegLiberacaoSenha.LiberacaoSenha')   #site que será automatizado.
+    navegador.find_element('xpath', '/html/body/form/div/div/div/div/table[1]/tbody/tr[1]/td[2]/input').send_keys('ussonhc') #senha
+    print('senha')
+    input()
+    navegador.find_element('xpath', '/html/body/form/div/div/div/div/table[1]/tbody/tr[2]/td[2]/input').send_keys('C@mpinas0804')#usuario
+    print(senha)
+    print(usuario)
+    input()
+    navegador.find_element('xpath', '/html/body/form/div/div/div/div/table[2]/tbody/tr/td/table/tbody/tr/td[1]/input').click()#clica no botão "acessar"
+    navegador.find_element('xpath', f"//tr/td/input[@value='{usuario_desejado}']").click()#clica no usuário que acabou de ser criado, para poder liberar a senha
+    navegador.find_element('xpath', '/html/body/form/table[3]/tbody/tr/td/table/tbody/tr/td[1]/input').click()#clica no botão "avançar"
+    sleep(1)
+    input()
+    navegador.find_element('xpath', '/html/body/form/table[2]/tbody/tr/td/table/tbody/tr/td[3]/input').click'''
 
-    navegador.find_element('xpath', f"//tr/td/input[@value='{usuario_desejado}']").click()
-    navegador.find_element('xpath', '/html/body/form/table[3]/tbody/tr/td/table/tbody/tr/td[1]/input').click()
-    input() 
+    #email(email) #chama a função de envio de email.
 
 #Esta função faz a execução do selenium para criação da senha nova (primeira senha) do SISE.
-def gera_senha(request):
+def cria_usuario(request):
     servico = Service(ChromeDriverManager().install()) #instala o driver mais recente do chrome para habilitar o acesso do selenium
     navegador = webdriver.Chrome(service = servico)  #variavel que armazena o drive e o navegador que será utilizado
     if request.method == 'POST':
@@ -67,86 +78,47 @@ def gera_senha(request):
             vinculo = form.cleaned_data['vinculo']
             print('O usuário desejado é:', usuario_desejado, nome_completo,matricula, email, vinculo)
        
-            try:    
-                '''op_do_chrome = Options() ,options= op_do_chrome
-                op_do_chrome.add_argument('--headless') #faz com que a pagina web que será aberta, não apareça para o usuário.'''
-
-                    
+            try:                
                 navegador.get('https://www1.sistemas.unicamp.br/SiSeCorp/publico/solicitacao_username/formsolicitacaousername.do')   #site que será automatizado.
                 navegador.find_element('xpath', '//*[@id="SolicitacaoUsernameActionForm"]/div/div[1]/div/div/div[2]/input[1]').send_keys(usuario_desejado)#preenche o campo de usuário desejado
-                
-                print("Enter para enserir o 'Vinculo' e 'Matricula'")
-                input()
-
-
                 #Esta condicional irá identificar se o usuário é Funcamp ou Unicamp, então clicar no vínculo apropriado e preeche o campo "matricula".
                 if vinculo == 'Funcamp':#se Funcamp
                     navegador.find_element('xpath','//*[@id="SolicitacaoUsernameActionForm"]/div/div[1]/div/div/div[2]/div[1]/select/option[3]').click()
                     navegador.find_element('xpath', '//*[@id="div_matricula_funcamp"]/input').send_keys(matricula)
+                    
                 elif vinculo == 'Unicamp':#se Unicamp
                     navegador.find_element('xpath', '//*[@id="SolicitacaoUsernameActionForm"]/div/div[1]/div/div/div[2]/div[1]/select/option[2]').click()
                     navegador.find_element('xpath', '//*[@id="div_matricula_unicamp"]/input').send_keys(matricula)
-
-                print("Enter para inserir o 'email' ")
-                input()
-                
-                
-
+                sleep(1)
                 navegador.find_element('xpath', '//*[@id="SolicitacaoUsernameActionForm"]/div/div[1]/div/div/div[2]/input[2]').send_keys(email)#preenche o campo 'email'
-                
-                print("Enter para clicar no botão de envio")
-                input()
-
                 navegador.find_element('xpath', '//*[@id="SolicitacaoUsernameActionForm"]/div/div[1]/div/div/div[3]/input[1]').click()#Clica no botão de envio do formulário
-                
-                print("Enter para clicar no botão 'confirmar' ")
-                input()
-                
                 navegador.find_element('xpath', '//*[@id="ConfirmarSolicitacaoUsernameActionForm"]/div/div[1]/div/div/div[3]/input[1]').click()#confirma a criação do usuário.
-                
-                print("Enter para clicar no 'OK' do pop-up")
-                input()
-                
-                
+               
+                #Este código identifica o popup de confirmação e clica no "ok"
                 popup = Alert(navegador)
                 popup.accept()
-                input()
-                print('terminou a tarefa')
-                navegador.quit()
-
-                print('Criou um usuário novo')
-             
+                sleep(1)
                
-                #mensagem de sucesso, caso o usuário seja criado sem erros.             
-                msg = {
-                    'msg_sucesso' : f'Usuário criado com sucesso! Siga as instruções enviadas para o email: {email}',
-                    
-                }
-                print('enviou mensagem de "Sucesso"')
-                liberacao_de_senha(usuario_desejado) #chama a função para fazer a liberação da senha, após a criação do usuário.
-                print('Ativou a função "liberação de senha"')
-                return render(request, 'index.html', msg) #redireciona para a mesma página, porém com o aviso de "sucesso"
-            
-            
             #Caso haja algum erro no envio do formulário, o usuário será informado com uma mensagem de erro.
             except Exception:
                 mensagem_erro = f'ERRO: Verifique os dados informados e tente novamente'
-                print(mensagem_erro)
                 form.add_error(None, mensagem_erro)
+                print('Agora vai renderizar a página, com uma msg de erro!')
                 return render(request, 'index.html', {'form': form, 'mensagem_erro': mensagem_erro})#redireciona para a mesma página, porém com o aviso de "Erro"
             finally:
                 navegador.quit()
         else:
             form = Formulario() 
-        return render(request, 'index.html', {'form': form})
+        mensagem_sucesso = f'Usuário criado com sucesso! Verifique o e-mail {email} para instruções.'
+        msg = {
+            'msg_sucesso': mensagem_sucesso
+        }
+        print('Agora vai renderizar a página novamente!!!')
+        return render(request, 'index.html', msg)
     
-  
-     
-
-
 
 #EMAIL AUTOMATICO
-def email():
+def email(email):
     resultado_tarefa = "teste concluído com sucesso"
     detalhes = "A tarefa automatizada foi concluída sem problemas."
 
