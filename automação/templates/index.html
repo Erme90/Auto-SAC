@@ -23,7 +23,7 @@
         <div class="card card-body">
             <h1>BEM VINDO!</h1>
             <h6>Preencha o formulário abaixo para gerar seu usuário e senha para acessar os seguintes sistemas UNICAMP:<br>
-                SISE, Email institucional...</h6>
+                SISE, email_usuario institucional...</h6>
         </div>
         
         <!--Formulário onde recebe os dados do usuário-->
@@ -63,11 +63,11 @@
                     </div>
                 <br>
                     <div>
-                        {% if form.email.errors %}
-                            {{ form.email }}
-                            <p class="text-danger">{{ form.email.errors|join:", " }}</p>
+                        {% if form.email_usuario.errors %}
+                            {{ form.email_usuario }}
+                            <p class="text-danger">{{ form.email_usuario.errors|join:", " }}</p>
                         {% else %}
-                            <input type="email" id="{{ form.email.id_for_label }}" name="{{ form.email.name }}" placeholder="Email">
+                            <input type="email_usuario" id="{{ form.email_usuario.id_for_label }}" name="{{ form.email_usuario.name }}" placeholder="email_usuario">
                         {% endif %}
                     </div>
                 <br>
