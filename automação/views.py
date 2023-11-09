@@ -19,36 +19,13 @@ from dotenv import load_dotenv
 import smtplib
 import email.message
 
-
 #Função de envio do email automatico com as instruções para o usuário.
-def enviar_email(email_usuario):  
-    corpo_email = """
-    <p>Teste de email_usuario.</p>
-    <p>Usuário criado com sucesso !</p>
-    """
-
-    msg = email.message.Message()
-    msg['Subject'] = "Teste de email_usuario"
-    msg['From'] = 'emersonnascimento.freire@gmail.com'
-    msg['To'] = email_usuario
-    password = 'puzb mlvc salm wzns'
-    msg.add_header('Content-Type', 'text/html')
-    msg.set_payload(corpo_email )
-
-    s = smtplib.SMTP('smtp.gmail.com: 587')
-    s.starttls()
-    # Login Credentials for sending the mail
-    s.login(msg['From'], password)
-    s.sendmail(msg['From'], [msg['To']], msg.as_string().encode('utf-8'))
-    print('email_usuario enviado')
-
-    enviar_email()
-
 
 load_dotenv(override=True)
 
 usuario = os.getenv('USER_ADM_SENHA')
 senha = os.getenv('SENHA_ADM_SENHA')
+
 #Esta função renderiza (abre) a página para o usuário
 def index (request):
     if request.method == 'GET':
@@ -64,35 +41,27 @@ class Formulario(forms.Form):
     email_usuario = forms.EmailField(required=True, error_messages={'required': 'Campo obrigatório.'})
     vinculo = forms.ChoiceField(choices=[('', 'Selecione um vínculo'),('Funcamp', 'Funcamp'), ('Unicamp', 'Unicamp')], required=True, error_messages={'required': 'Selecione um vinculo.'})
 
+def enviar_email(email_usuario, usuario_desejado, senha_provisoria, nome_completo):  
+    corpo_email = f"""
+    <p>Teste de email_usuario.</p>
+    <p>Bem vindo(a) {nome_completo}</p>
+    <p>Usuário {usuario_desejado} criado com sucesso. !</p>
+    <p>A senha provisória é {senha_provisoria}</p>
+    """
 
+    msg = email.message.Message()
+    msg['Subject'] = "Teste de email_usuario"
+    msg['From'] = 'emersonnascimento.freire@gmail.com'
+    msg['To'] = email_usuario
+    password = 'puzb mlvc salm wzns'
+    msg.add_header('Content-Type', 'text/html')
+    msg.set_payload(corpo_email )
 
-
-#Esta função, será chamada pela função "cria_usuario", para iniciar o processo de liberação e envio da senha ao usuário.
-
-'''def liberacao_de_senha(usuario_desejado, senha, usuario):  #identificará o usuário criado para enviar o e-mail com as orientações
-    print('Chama a página')
-    input()
-    servico = Service(ChromeDriverManager().install()) #instala o driver mais recente do chrome para habilitar o acesso do selenium
-    navegador = webdriver.Chrome(service = servico)  #variavel que armazena o drive e o navegador que será utilizado
-    print('envia os dados de login do adm')
-    input()
-    print('usuario')
-    navegador.get('https://www.sistemas.unicamp.br/servlet/pckSsegLiberacaoSenha.LiberacaoSenha')   #site que será automatizado.
-    navegador.find_element('xpath', '/html/body/form/div/div/div/div/table[1]/tbody/tr[1]/td[2]/input').send_keys('ussonhc') #senha
-    print('senha')
-    input()
-    navegador.find_element('xpath', '/html/body/form/div/div/div/div/table[1]/tbody/tr[2]/td[2]/input').send_keys('C@mpinas0804')#usuario
-    print(senha)
-    print(usuario)
-    input()
-    navegador.find_element('xpath', '/html/body/form/div/div/div/div/table[2]/tbody/tr/td/table/tbody/tr/td[1]/input').click()#clica no botão "acessar"
-    navegador.find_element('xpath', f"//tr/td/input[@value='{usuario_desejado}']").click()#clica no usuário que acabou de ser criado, para poder liberar a senha
-    navegador.find_element('xpath', '/html/body/form/table[3]/tbody/tr/td/table/tbody/tr/td[1]/input').click()#clica no botão "avançar"
-    sleep(1)
-    input()
-    navegador.find_element('xpath', '/html/body/form/table[2]/tbody/tr/td/table/tbody/tr/td[3]/input').click'''
-
-    #email_usuario(email_usuario) #chama a função de envio de email_usuario.
+    s = smtplib.SMTP('smtp.gmail.com: 587')
+    s.starttls()
+    # Credenciais para login no email.
+    s.login(msg['From'], password)
+    s.sendmail(msg['From'], [msg['To']], msg.as_string().encode('utf-8'))
 
 #Esta função faz a execução do selenium para criação da senha nova (primeira senha) do SISE.
 def cria_usuario(request):
@@ -137,10 +106,10 @@ def cria_usuario(request):
                 
                 
                 return render(request, 'index.html', {'form': form, 'mensagem_erro': mensagem_erro})#redireciona para a mesma página, porém com o aviso de "Erro"
-            finally:
-                enviar_email(email_usuario)
-                print('enviou o email')
+            finally:                
+                
                 navegador.quit()
+                liberacao_de_senha(usuario_desejado, email_usuario, nome_completo)
         else:
             form = Formulario() 
         mensagem_sucesso = f'Usuário criado com sucesso! Verifique o e-mail {email_usuario} para instruções.'
@@ -150,6 +119,19 @@ def cria_usuario(request):
         print('Agora vai renderizar a página novamente!!!')
         return render(request, 'index.html', msg)
     
+#Esta função, será chamada pela função "cria_usuario", para iniciar o processo de liberação e envio da senha ao usuário.
 
-#email_usuario AUTOMATICO
+def liberacao_de_senha(usuario_desejado, email_usuario, nome_completo):  
+    servico = Service(ChromeDriverManager().install()) #instala o driver mais recente do chrome para habilitar o acesso do selenium
+    navegador = webdriver.Chrome(service = servico)  #variavel que armazena o drive e o navegador que será utilizado
+    navegador.get('https://www.sistemas.unicamp.br/servlet/pckSsegLiberacaoSenha.LiberacaoSenha')   #site que será automatizado.
+    navegador.find_element('xpath', '/html/body/form/div/div/div/div/table[1]/tbody/tr[1]/td[2]/input').send_keys('ussonhc')
+    navegador.find_element('xpath', '/html/body/form/div/div/div/div/table[1]/tbody/tr[2]/td[2]/input').send_keys('C@mpinas0804')
+    navegador.find_element('xpath', '/html/body/form/div/div/div/div/table[2]/tbody/tr/td/table/tbody/tr/td[1]/input').click()
+    navegador.find_element('xpath', f"//tr/td/input[@value='{usuario_desejado}']").click()
+    navegador.find_element(By.NAME, 'cmdAvancar').click()
+    navegador.find_element(By.NAME, 'cmdAvancar').click()
+    senha_provisoria = navegador.find_element('xpath', '/html/body/form/b[3]').text
+    enviar_email(email_usuario, usuario_desejado, senha_provisoria, nome_completo)
 
+    print(senha_provisoria, usuario_desejado)
