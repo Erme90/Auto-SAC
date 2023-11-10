@@ -14,17 +14,20 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException, WebDriverException
 from time import sleep
+from decouple import Config, Csv
 import os
 from dotenv import load_dotenv
 import smtplib
 import email.message
 
 #Função de envio do email automatico com as instruções para o usuário.
-
+config = Config('.env')
 load_dotenv(override=True)
 
-usuario = os.getenv('USER_ADM_SENHA')
-senha = os.getenv('SENHA_ADM_SENHA')
+usuario_adm = config('USER_ADM_SENHA')
+senha_adm = config('SENHA_ADM_SENHA')
+usuario_gmail = config('USER_GMAIL')
+senha_gmail = config('SENHA_GMAIL')
 
 #Esta função renderiza (abre) a página para o usuário
 def index (request):
@@ -43,7 +46,7 @@ class Formulario(forms.Form):
 
 def enviar_email(email_usuario, usuario_desejado, senha_provisoria, nome_completo):  
     corpo_email = f"""
-    <p>Teste de email_usuario.</p>
+    <p>Teste de email.</p>
     <p>Bem vindo(a) {nome_completo}</p>
     <p>Usuário {usuario_desejado} criado com sucesso. !</p>
     <p>A senha provisória é {senha_provisoria}</p>
@@ -51,9 +54,9 @@ def enviar_email(email_usuario, usuario_desejado, senha_provisoria, nome_complet
 
     msg = email.message.Message()
     msg['Subject'] = "Teste de email_usuario"
-    msg['From'] = 'emersonnascimento.freire@gmail.com'
+    msg['From'] = usuario_gmail
     msg['To'] = email_usuario
-    password = 'puzb mlvc salm wzns'
+    password = senha_gmail
     msg.add_header('Content-Type', 'text/html')
     msg.set_payload(corpo_email )
 
@@ -88,7 +91,7 @@ def cria_usuario(request):
                 elif vinculo == 'Unicamp':#se Unicamp
                     navegador.find_element('xpath', '//*[@id="SolicitacaoUsernameActionForm"]/div/div[1]/div/div/div[2]/div[1]/select/option[2]').click()
                     navegador.find_element('xpath', '//*[@id="div_matricula_unicamp"]/input').send_keys(matricula)
-                sleep(1)
+           
                 navegador.find_element('xpath', '//*[@id="SolicitacaoUsernameActionForm"]/div/div[1]/div/div/div[2]/input[2]').send_keys(email_usuario)#preenche o campo 'email_usuario'
                 navegador.find_element('xpath', '//*[@id="SolicitacaoUsernameActionForm"]/div/div[1]/div/div/div[3]/input[1]').click()#Clica no botão de envio do formulário
                 navegador.find_element('xpath', '//*[@id="ConfirmarSolicitacaoUsernameActionForm"]/div/div[1]/div/div/div[3]/input[1]').click()#confirma a criação do usuário.
@@ -97,6 +100,8 @@ def cria_usuario(request):
                 popup = Alert(navegador)
                 popup.accept()
                 sleep(1)
+
+                
                
             #Caso haja algum erro no envio do formulário, o usuário será informado com uma mensagem de erro.
             except Exception:
@@ -106,10 +111,10 @@ def cria_usuario(request):
                 
                 
                 return render(request, 'index.html', {'form': form, 'mensagem_erro': mensagem_erro})#redireciona para a mesma página, porém com o aviso de "Erro"
-            finally:                
-                
+            finally:  
                 navegador.quit()
                 liberacao_de_senha(usuario_desejado, email_usuario, nome_completo)
+                
         else:
             form = Formulario() 
         mensagem_sucesso = f'Usuário criado com sucesso! Verifique o e-mail {email_usuario} para instruções.'
@@ -125,9 +130,11 @@ def liberacao_de_senha(usuario_desejado, email_usuario, nome_completo):
     servico = Service(ChromeDriverManager().install()) #instala o driver mais recente do chrome para habilitar o acesso do selenium
     navegador = webdriver.Chrome(service = servico)  #variavel que armazena o drive e o navegador que será utilizado
     navegador.get('https://www.sistemas.unicamp.br/servlet/pckSsegLiberacaoSenha.LiberacaoSenha')   #site que será automatizado.
-    navegador.find_element('xpath', '/html/body/form/div/div/div/div/table[1]/tbody/tr[1]/td[2]/input').send_keys('ussonhc')
+    navegador.find_element('xpath', '/html/body/form/div/div/div/div/table[1]/tbody/tr[1]/td[2]/input').send_keys(usuario_adm)
     navegador.find_element('xpath', '/html/body/form/div/div/div/div/table[1]/tbody/tr[2]/td[2]/input').send_keys('C@mpinas0804')
+    input('enter para constinuar: ')
     navegador.find_element('xpath', '/html/body/form/div/div/div/div/table[2]/tbody/tr/td/table/tbody/tr/td[1]/input').click()
+    input('enter para continuar: ')
     navegador.find_element('xpath', f"//tr/td/input[@value='{usuario_desejado}']").click()
     navegador.find_element(By.NAME, 'cmdAvancar').click()
     navegador.find_element(By.NAME, 'cmdAvancar').click()
