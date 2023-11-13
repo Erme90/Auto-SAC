@@ -46,14 +46,38 @@ class Formulario(forms.Form):
 
 def enviar_email(email_usuario, usuario_desejado, senha_provisoria, nome_completo):  
     corpo_email = f"""
-    <p>Teste de email.</p>
-    <p>Bem vindo(a) {nome_completo}</p>
-    <p>Usuário {usuario_desejado} criado com sucesso. !</p>
-    <p>A senha provisória é {senha_provisoria}</p>
+    <p>Olá {nome_completo}</p>
+    <p>O seu usuário <strong>{usuario_desejado}</strong> foi criado com sucesso e sua senha provisória é <strong>{senha_provisoria}</strong>. !</p>
+    <br>    
+    <P style="color: #f00;">LEIA ATENTAMENTE AS INSTRUÇÕES DESTA MENSAGEM, INCLUSIVE OS LINKS IMPORTANTES LOGO ABAIXO.</P>
+    <br>
+    <P># A senha contida neste e-mail, deverá ser trocada antes do primeiro acesso, para isso, clique no link relacionado abaixo e siga os passos da página.</P>
+    <P># Este username criado, também é seu e-mail institucional ({usuario_desejado}@unicamp.br)</P> 
+    <br>   
+    <p>Links Importantes:</p>
+
+
+    <p> Para efetuar a troca de senha: </p>
+
+    <p> https://www1.sistemas.unicamp.br/TrocarSenha/trocarsenha.do </p>
+
+
+    <p> Para acesso ao email institucional, após a troca da senha:</p>
+
+    <p>https://webmail.unicamp.br</p>
+
+    <p>Para recuperação de senha, em caso de esquecimentos ou problemas de acesso:</p>
+
+    <p>https://www1.sistemas.unicamp.br/TrocarSenha/trocarsenhaesquecimento.do</p>
+
+
+    <p>Para efetuar o acesso a rede wifi/vpn, após a troca da senha, SIGA à Risca  lendo o conteúdo completo dos procedimentos existentes no link abaixo:</p>
+
+    <p>http://www.ccuec.unicamp.br/ccuec/catalogo/redes-vpn-e-redes-sem-fio-wi-fi </p>
     """
 
     msg = email.message.Message()
-    msg['Subject'] = "Teste de email_usuario"
+    msg['Subject'] = "Criação de usuário Sise"
     msg['From'] = usuario_gmail
     msg['To'] = email_usuario
     password = senha_gmail
@@ -106,10 +130,7 @@ def cria_usuario(request):
             #Caso haja algum erro no envio do formulário, o usuário será informado com uma mensagem de erro.
             except Exception:
                 mensagem_erro = f'ERRO: Verifique os dados informados e tente novamente'
-                form.add_error(None, mensagem_erro)
-                print('Agora vai renderizar a página, com uma msg de erro!')
-                
-                
+                form.add_error(None, mensagem_erro) 
                 return render(request, 'index.html', {'form': form, 'mensagem_erro': mensagem_erro})#redireciona para a mesma página, porém com o aviso de "Erro"
             finally:  
                 navegador.quit()
@@ -121,7 +142,7 @@ def cria_usuario(request):
         msg = {
             'msg_sucesso': mensagem_sucesso
         }
-        print('Agora vai renderizar a página novamente!!!')
+        
         return render(request, 'index.html', msg)
     
 #Esta função, será chamada pela função "cria_usuario", para iniciar o processo de liberação e envio da senha ao usuário.
