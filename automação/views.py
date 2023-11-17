@@ -1,29 +1,27 @@
 from django import forms
 from django.shortcuts import render, redirect
-from django.http import HttpResponse
-from django.http import JsonResponse
-from django.contrib import messages
-from django.core.mail import send_mail
 from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.alert import Alert
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException, WebDriverException
 from time import sleep
 from decouple import Config, Csv
-import os
 from dotenv import load_dotenv
 import smtplib
 import email.message
 
-#Função de envio do email automatico com as instruções para o usuário.
+def inicia_webdriver():
+    options = Options()
+    options.headless = True
+    servico = Service(ChromeDriverManager().install()) 
+    return webdriver.Chrome(service=servico, options=options)
+
+#Configuração de variaveis de ambiente.
 config = Config('.env')
 load_dotenv(override=True)
-
 usuario_adm = config('USER_ADM_SENHA')
 senha_adm = config('SENHA_ADM_SENHA')
 usuario_gmail = config('USER_GMAIL')
@@ -36,9 +34,13 @@ def index (request):
     print('abriu a pagina')
     return render(request, 'index.html', {'form': form})
 
+def sucesso (request):
+    email_usuario = request.session.get('email_usuario')
+    return render(request,'index_sucesso.html', {'email_usuario': email_usuario})
+
 #Esta classe, fará com que os campos do formulário seja preenchido de forma correta e não deixa dados de fora.
 class Formulario(forms.Form):
-    usuario_desejado = forms.CharField(max_length=100, required=True, error_messages={'required': 'Campo obrigatório.'})
+    usuario_desejado = forms.CharField(max_length=8, required=True, error_messages={'required': 'Campo obrigatório.'})
     nome_completo = forms.CharField(max_length=100, required=True, error_messages={'required': 'Campo obrigatório.'})
     matricula = forms.CharField(max_length=10, required=True, error_messages={'required': 'Campo obrigatório.'})
     email_usuario = forms.EmailField(required=True, error_messages={'required': 'Campo obrigatório.'})
@@ -83,7 +85,6 @@ def enviar_email(email_usuario, usuario_desejado, senha_provisoria, nome_complet
     password = senha_gmail
     msg.add_header('Content-Type', 'text/html')
     msg.set_payload(corpo_email )
-
     s = smtplib.SMTP('smtp.gmail.com: 587')
     s.starttls()
     # Credenciais para login no email.
@@ -92,8 +93,7 @@ def enviar_email(email_usuario, usuario_desejado, senha_provisoria, nome_complet
 
 #Esta função faz a execução do selenium para criação da senha nova (primeira senha) do SISE.
 def cria_usuario(request):
-    servico = Service(ChromeDriverManager().install()) #instala o driver mais recente do chrome para habilitar o acesso do selenium
-    navegador = webdriver.Chrome(service = servico)  #variavel que armazena o drive e o navegador que será utilizado
+    navegador = inicia_webdriver()
     if request.method == 'POST':
         form = Formulario(request.POST)
         if form.is_valid():
@@ -119,47 +119,43 @@ def cria_usuario(request):
                 navegador.find_element('xpath', '//*[@id="SolicitacaoUsernameActionForm"]/div/div[1]/div/div/div[2]/input[2]').send_keys(email_usuario)#preenche o campo 'email_usuario'
                 navegador.find_element('xpath', '//*[@id="SolicitacaoUsernameActionForm"]/div/div[1]/div/div/div[3]/input[1]').click()#Clica no botão de envio do formulário
                 navegador.find_element('xpath', '//*[@id="ConfirmarSolicitacaoUsernameActionForm"]/div/div[1]/div/div/div[3]/input[1]').click()#confirma a criação do usuário.
-               
+                request.session['email_usuario'] = email_usuario
+
                 #Este código identifica o popup de confirmação e clica no "ok"
                 popup = Alert(navegador)
                 popup.accept()
-                sleep(1)
-
-                
+                sleep(0.5)                                
                
             #Caso haja algum erro no envio do formulário, o usuário será informado com uma mensagem de erro.
-            except Exception:
-                mensagem_erro = f'ERRO: Verifique os dados informados e tente novamente'
-                form.add_error(None, mensagem_erro) 
-                return render(request, 'index.html', {'form': form, 'mensagem_erro': mensagem_erro})#redireciona para a mesma página, porém com o aviso de "Erro"
+            
+            except NoSuchElementException as e:
+                mensagem_erro = f'ERRO: por favor tente novamente'
+                form.add_error(None, mensagem_erro)
+                navegador.quit()
+                return(render, 'index.html', {'form': form, 'mensagem_erro' : mensagem_erro})
+
             finally:  
                 navegador.quit()
-                liberacao_de_senha(usuario_desejado, email_usuario, nome_completo)
-                
+                if 'mensagem_erro' in locals():
+                    return render(request, 'index.html', {'form': form, 'mensagem_erro': mensagem_erro}) 
         else:
-            form = Formulario() 
-        mensagem_sucesso = f'Usuário criado com sucesso! Verifique o e-mail {email_usuario} para instruções.'
-        msg = {
-            'msg_sucesso': mensagem_sucesso
-        }
+            return index()            
         
-        return render(request, 'index.html', msg)
+        liberacao_de_senha(usuario_desejado, email_usuario, nome_completo)
+        return redirect ('sucesso')
     
-#Esta função, será chamada pela função "cria_usuario", para iniciar o processo de liberação e envio da senha ao usuário.
+#Esta função, será chamada pela função "cria_usuario", para iniciar o processo de liberação e envio da senha ao usuário e também chamará a função
+# de envio do email com instruções.
 
 def liberacao_de_senha(usuario_desejado, email_usuario, nome_completo):  
-    servico = Service(ChromeDriverManager().install()) #instala o driver mais recente do chrome para habilitar o acesso do selenium
-    navegador = webdriver.Chrome(service = servico)  #variavel que armazena o drive e o navegador que será utilizado
+    navegador = inicia_webdriver()
     navegador.get('https://www.sistemas.unicamp.br/servlet/pckSsegLiberacaoSenha.LiberacaoSenha')   #site que será automatizado.
-    navegador.find_element('xpath', '/html/body/form/div/div/div/div/table[1]/tbody/tr[1]/td[2]/input').send_keys(usuario_adm)
+    navegador.find_element('xpath', '/html/body/form/div/div/div/div/table[1]/tbody/tr[1]/td[2]/input').send_keys('ussonhc')
     navegador.find_element('xpath', '/html/body/form/div/div/div/div/table[1]/tbody/tr[2]/td[2]/input').send_keys('C@mpinas0804')
-    input('enter para constinuar: ')
     navegador.find_element('xpath', '/html/body/form/div/div/div/div/table[2]/tbody/tr/td/table/tbody/tr/td[1]/input').click()
-    input('enter para continuar: ')
     navegador.find_element('xpath', f"//tr/td/input[@value='{usuario_desejado}']").click()
     navegador.find_element(By.NAME, 'cmdAvancar').click()
     navegador.find_element(By.NAME, 'cmdAvancar').click()
+    #armazena a senha provisória capturada na página
     senha_provisoria = navegador.find_element('xpath', '/html/body/form/b[3]').text
     enviar_email(email_usuario, usuario_desejado, senha_provisoria, nome_completo)
-
-    print(senha_provisoria, usuario_desejado)

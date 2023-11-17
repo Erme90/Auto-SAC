@@ -34,13 +34,14 @@
 
                 {% csrf_token %}
 
+
                 <div class="inputs">
                     <div>
                         {% if form.usuario_desejado.errors %}
                             {{ form.usuario_desejado }}
                             <p class="text-danger">{{ form.usuario_desejado.errors|join:", " }}</p>
-                        {% else %}
-                            <input type="text" id="{{ form.usuario_desejado.id_for_label }}" name="{{ form.usuario_desejado.name }}" placeholder="Usuário desejado">
+                        {% else %}                       
+                            <input type="text" id="{{ form.usuario_desejado.id_for_label }}" name="{{ form.usuario_desejado.name }}" placeholder="Usuário desejado" maxlength="8" data-toggle="popover" title="Dica" data-content="Crie um usuario com no máximo 8 caracteres, contendo somente letras e fácil de lembrar. Também não utilize caracteres especiais como {}[]/;.-+=|\*&%$#@!'"> 
                         {% endif %}
                     </div>
                 <br>
@@ -108,10 +109,19 @@
             </p>
         </div>
     </div>
-
+    
     <!--Rodapé-->
-    <div class="card-footer text-muted text-center">
-        <p>Desenvolvido por Divisão de informática HC - UNICAMP</p>
-    </div>
+    <footer>
+        <div class="card-footer text-muted text-center">
+            <p>Desenvolvido por Divisão de informática HC - UNICAMP</p>
+        </div>
+    </footer>
+
+    <script>
+        $(document).ready(function(){
+          // Inicializa os popovers
+          $('[data-toggle="popover"]').popover();   
+        });
+        </script>
 </body>
 </html>
