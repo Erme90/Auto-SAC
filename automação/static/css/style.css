@@ -12,10 +12,11 @@ html, body {
 .container {
     position: relative; /* Adiciona uma posição relativa para o contêiner */
     padding: 20px; /* Adiciona um espaçamento na parte inferior para acomodar o rodapé */
+
 }
 
 .logo img {
-    width: 250px;
+    width: 200px;
     display: block; /* Garante que a imagem se comporte corretamente */
     margin: 0 auto; /* Centraliza a imagem horizontalmente */
 }
@@ -25,7 +26,7 @@ html, body {
 }
 
 .formulario{
-    margin-bottom: 100px;
+    margin-bottom: 90px;
 }
 
 input{
@@ -41,4 +42,15 @@ input{
     text-align: center;
     position: absolute; /* Posiciona o rodapé na parte inferior */
     bottom: 0;
+}
+
+@media (max-width: 768px) {
+    .formulario {
+        margin-bottom: 0px; /* Adapte o valor conforme necessário para evitar a sobreposição */
+    }
+
+    .footer {
+        position: static; /* Altera o posicionamento para 'static' para acomodar o layout móvel */
+        margin-top: 10px; /* Adicione uma margem superior para separar do conteúdo */
+    }
 }

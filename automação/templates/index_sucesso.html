@@ -1,50 +1,72 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerador de senha SISE</title>
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Gerador de senha SISE</title>
+        {% load static %}
+        <link rel="stylesheet" href="{% static 'css/style.css' %}">
 
-    <!--Bootstrap CDN-->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+        <!--Bootstrap CDN-->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
-</head>
+    </head>
 
-<body>
-    <div class="logo">
-        <img src="../static/img/Logo_Unicamp.jpg" alt="logo">
-    </div>
-    <br>
-    <!--Texto de apresentação do sistema-->
-    <div class="container text-center">
-        <div class="card card-body">
-            <h1>BEM VINDO!</h1>
-            <h6>Solicitação de username para acesso aos serviços corporativos</h6>
-        </div>
-
-        <br>
-
-        <div class = "alert alert-success">
-            <p> SEU USUÁRIO FOI CRIADO COM SUCESSO!</p>
-            <p> Verifique o email <strong>{{email_usuario}}</strong> para instruções.</p>
-        </div>
-          
-        <div id="card-contatos">            
-            <p>Dúvidas?</p>
-            <p>email: saucontas@unicamp.br</p>
-        </div>
-
-        <footer class="footer">
-            <div class="card-footer text-muted text-center">
-               <h6>Desenvolvido por Divisão de informática HC - UNICAMP</h6>
+    <body>
+        <div class="container">
+            <div class="logo">
+                <img src="../static/img/Logo_Unicamp.jpg" alt="logo">
             </div>
-        </footer>
-    </div>
-</body>
+            
+            <br>
+            <!--Texto de apresentação do sistema-->
+        
+            <div class="corpo">
+                <div>
+                    <h1>BEM VINDO!</h1>
+                    <h6>Solicitação de username para acesso aos serviços corporativos</h6>
+                </div>
+
+                <br>
+
+                <div class="alert alert-success">
+                    <p >Usuário criado com sucesso.</p>
+                    <p>Acesse o email: <strong>{{email_usuario}}</strong> para mais instruções</p>
+                </div>
+                
+                <!--Formulário onde recebe os dados do usuário-->
+                <br>
+
+                
+
+                <div id="card-contatos">            
+                    <p>Dúvidas?</p>
+                    <p>email: saucontas@unicamp.br</p>
+                </div>
+            </div>
+
+            
+            
+            
+        </div>
+        <div>
+            <footer class="footer">
+                <div>
+                    <p class="text-center text-muted">Desenvolvido por DINF-HC UNICAMP</p>
+                </div>
+            </footer>
+        </div>
+        
+        
+    </body> 
+    <script>
+        $(document).ready(function(){
+        // Inicializa os popovers
+        $('[data-toggle="popover"]').popover();   
+        });
+    </script>
 </html>

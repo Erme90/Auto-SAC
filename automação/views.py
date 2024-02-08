@@ -38,9 +38,13 @@ def sucesso (request):
     email_usuario = request.session.get('email_usuario')
     return render(request,'index_sucesso.html', {'email_usuario': email_usuario})
 
+def valida_username(value):
+    if not value.isalpha():
+        raise forms.ValidationError('ERRO: O seu usuário deve conter somente letras.')
+
 #Esta classe, fará com que os campos do formulário seja preenchido de forma correta e não deixa dados de fora.
 class Formulario(forms.Form):
-    usuario_desejado = forms.CharField(max_length=8, required=True, error_messages={'required': 'Campo obrigatório.'})
+    usuario_desejado = forms.CharField(max_length=8, required=True, validators=[valida_username],error_messages={'required': 'Campo obrigatório.'})
     nome_completo = forms.CharField(max_length=100, required=True, error_messages={'required': 'Campo obrigatório.'})
     matricula = forms.CharField(max_length=10, required=True, error_messages={'required': 'Campo obrigatório.'})
     email_usuario = forms.EmailField(required=True, error_messages={'required': 'Campo obrigatório.'})
@@ -102,9 +106,9 @@ def cria_usuario(request):
             matricula = form.cleaned_data['matricula']
             email_usuario = form.cleaned_data['email_usuario']
             vinculo = form.cleaned_data['vinculo']
-            print('O usuário desejado é:', usuario_desejado, nome_completo,matricula, email_usuario, vinculo)
        
-            try:                
+            try:    
+                print('entrou no "try"')            
                 navegador.get('https://www1.sistemas.unicamp.br/SiSeCorp/publico/solicitacao_username/formsolicitacaousername.do')   #site que será automatizado.
                 navegador.find_element('xpath', '//*[@id="SolicitacaoUsernameActionForm"]/div/div[1]/div/div/div[2]/input[1]').send_keys(usuario_desejado)#preenche o campo de usuário desejado
                 #Esta condicional irá identificar se o usuário é Funcamp ou Unicamp, então clicar no vínculo apropriado e preeche o campo "matricula".
@@ -129,25 +133,32 @@ def cria_usuario(request):
             #Caso haja algum erro no envio do formulário, o usuário será informado com uma mensagem de erro.
             
             except NoSuchElementException as e:
+                print('entrou no "except"')
                 mensagem_erro = f'ERRO: por favor tente novamente'
                 form.add_error(None, mensagem_erro)
                 navegador.quit()
-                return(render, 'index.html', {'form': form, 'mensagem_erro' : mensagem_erro})
+                return render(request, 'index.html', {'form': form})
 
             finally:  
+                print('Entrou no "finally"')
                 navegador.quit()
-                if 'mensagem_erro' in locals():
-                    return render(request, 'index.html', {'form': form, 'mensagem_erro': mensagem_erro}) 
+                if form.errors:
+                    return render(request, 'index.html', {'form': form}) 
         else:
-            return index()            
+            print('entrou no "else"')
+            form.add_error = (None, 'ERRO: Username não está dentro dos padrões, tente novamente')    
+            return render (request, 'index.html', {'form': form})     
         
         liberacao_de_senha(usuario_desejado, email_usuario, nome_completo)
+       
         return redirect ('sucesso')
-    
+
+
 #Esta função, será chamada pela função "cria_usuario", para iniciar o processo de liberação e envio da senha ao usuário e também chamará a função
 # de envio do email com instruções.
 
-def liberacao_de_senha(usuario_desejado, email_usuario, nome_completo):  
+def liberacao_de_senha(usuario_desejado, email_usuario, nome_completo):
+    print('entrou no "liberação de senha"')  
     navegador = inicia_webdriver()
     navegador.get('https://www.sistemas.unicamp.br/servlet/pckSsegLiberacaoSenha.LiberacaoSenha')   #site que será automatizado.
     navegador.find_element('xpath', '/html/body/form/div/div/div/div/table[1]/tbody/tr[1]/td[2]/input').send_keys('ussonhc')
@@ -158,4 +169,5 @@ def liberacao_de_senha(usuario_desejado, email_usuario, nome_completo):
     navegador.find_element(By.NAME, 'cmdAvancar').click()
     #armazena a senha provisória capturada na página
     senha_provisoria = navegador.find_element('xpath', '/html/body/form/b[3]').text
+    #navegador.find_element(By.NAME, 'cmdConfirmar').click()
     enviar_email(email_usuario, usuario_desejado, senha_provisoria, nome_completo)

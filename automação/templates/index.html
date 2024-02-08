@@ -1,130 +1,142 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Gerador de senha SISE</title>
-        {% load static %}
-        <link rel="stylesheet" href="{% static 'css/style.css' %}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de senha SISE</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <!-- Bootstrap CDN -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</head>
 
-        <!--Bootstrap CDN-->
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
-    </head>
-
-    <body>
-        <div class="container">
-            <div class="logo">
-                <img src="../static/img/Logo_Unicamp.jpg" alt="logo">
+<body>
+    <div class="container">
+        <div class="logo">
+            <img src="../static/img/Logo_Unicamp.jpg" alt="logo">
+        </div>
+        <br>
+        <!-- Texto de apresentação do sistema -->
+        <div class="corpo">
+            <div>
+                <h1>BEM VINDO!</h1>
+                <h6>Solicitação de username para acesso aos serviços corporativos</h6>
             </div>
-            
+            <!-- Formulário onde recebe os dados do usuário -->
             <br>
-            <!--Texto de apresentação do sistema-->
-        
-            <div class="corpo">
-                <div>
-                    <h1>BEM VINDO!</h1>
-                    <h6>Solicitação de username para acesso aos serviços corporativos</h6>
-                </div>
-                
-                <!--Formulário onde recebe os dados do usuário-->
-                <br>
-
-                <div class="formulario">
-                    <form id="campos_form" method="post" action="{% url 'gera_usuario' %}" >
-
-                        {% csrf_token %}
-
-
-                        <div class="inputs">
-                            <div>
-                                {% if form.usuario_desejado.errors %}
-                                    {{ form.usuario_desejado }}
-                                    <p class="text-danger">{{ form.usuario_desejado.errors|join:", " }}</p>
-                                {% else %}                       
-                                    <input type="text" id="{{ form.usuario_desejado.id_for_label }}" name="{{ form.usuario_desejado.name }}" placeholder="Usuário desejado" maxlength="8" data-toggle="popover" title="Dica" data-content="Crie um usuario com no máximo 8 caracteres, contendo somente letras e fácil de lembrar. Também não utilize caracteres especiais como {}[]/;.-+=|\*&%$#@!'" required> 
-                                {% endif %}
-                            </div>
-                        <br>
-                            <div>
-                                {% if form.nome_completo.errors %}
-                                    {{ form.nome_completo }}
-                                    <p class="text-danger">{{ form.nome_completo.errors|join:", " }}</p>
-                                {% else %}
-                                    <input type="text" id="{{ form.nome_completo.id_for_label }}" name="{{ form.nome_completo.name }}" placeholder="Nome completo" required>
-                                {% endif %}
-                            </div>
-                        <br>
-                            <div>
-                                {% if form.matricula.errors %}
-                                    {{ form.matricula }}
-                                    <p class="text-danger">{{ form.matricula.errors|join:", " }}</p>
-                                {% else %}
-                                    <input type="text" id="{{ form.matricula.id_for_label }}" name="{{ form.matricula.name }}" placeholder="Matrícula" required>
-                                {% endif %}
-                            </div>
-                        <br>
-                            <div>
-                                {% if form.email_usuario.errors %}
-                                    {{ form.email_usuario }}
-                                    <p class="text-danger">{{ form.email_usuario.errors|join:", " }}</p>
-                                {% else %}
-                                    <input type="email_usuario" id="{{ form.email_usuario.id_for_label }}" name="{{ form.email_usuario.name }}" placeholder="E-mail" required>
-                                {% endif %}
-                            </div>
-                        <br>
-                            <div class="col-md-12 mb-6">
-                            
-                                {{ form.vinculo }}
-                                {% if form.vinculo.errors %}
-                                    <p class="text-danger">{{ form.vinculo.errors|join:", " }}</p>
-                                {% endif %}
-                            </div>
+            <div class="formulario">
+                <form id="campos_form" method="post" action="{% url 'gera_usuario' %}">
+                    {% csrf_token %}
+                    <div class="inputs">
+                        <div>
+                            {% if form.usuario_desejado.errors %}
+                                {{ form.usuario_desejado }}
+                                <p class="text-danger">{{ form.usuario_desejado.errors|join:", " }}</p>
+                            {% else %}
+                                <input type="text" id="{{ form.usuario_desejado.id_for_label }}" name="{{ form.usuario_desejado.name }}" placeholder="Usuário desejado" maxlength="8" data-toggle="popover" title="Dica" data-content="Crie um usuario com no máximo 8 caracteres, contendo somente letras e fácil de lembrar. Também não utilize caracteres especiais como {}[]/;.-+=|\*&%$#@!'" required>
+                            {% endif %}
                         </div>
-                        
                         <br>
-                        <!--botão que gera a senha-->
-                        <div class="col-md-12 mb-8">
-                            <button id="gerasenha" class="btn btn-primary" type="submit" name="executafuncao">Gerar senha provisória</button><br> 
+                        <div>
+                            {% if form.nome_completo.errors %}
+                                {{ form.nome_completo }}
+                                <p class="text-danger">{{ form.nome_completo.errors|join:", " }}</p>
+                            {% else %}
+                                <input type="text" id="{{ form.nome_completo.id_for_label }}" name="{{ form.nome_completo.name }}" placeholder="Nome completo" required>
+                            {% endif %}
                         </div>
-                    </form>
-
-                    <div id="card-contatos">            
-                        <p>Dúvidas?</p>
-                        <p>email: saucontas@unicamp.br</p>
+                        <br>
+                        <div>
+                            {% if form.matricula.errors %}
+                                {{ form.matricula }}
+                                <p class="text-danger">{{ form.matricula.errors|join:", " }}</p>
+                            {% else %}
+                                <input type="text" id="{{ form.matricula.id_for_label }}" name="{{ form.matricula.name }}" placeholder="Matrícula" required>
+                            {% endif %}
+                        </div>
+                        <br>
+                        <div>
+                            {% if form.email_usuario.errors %}
+                                {{ form.email_usuario }}
+                                <p class="text-danger">{{ form.email_usuario.errors|join:", " }}</p>
+                            {% else %}
+                                <input type="email_usuario" id="{{ form.email_usuario.id_for_label }}" name="{{ form.email_usuario.name }}" placeholder="E-mail" required>
+                            {% endif %}
+                        </div>
+                        <br>
+                        <div class="col-md-12 mb-6">
+                            {{ form.vinculo }}
+                            {% if form.vinculo.errors %}
+                                <p class="text-danger">{{ form.vinculo.errors|join:", " }}</p>
+                            {% endif %}
+                        </div>
                     </div>
+                    <br>
+                    <!-- botão que gera a senha -->
+                    <div class="col-md-12 mb-8">
+                        <!-- Adicione isso ao seu formulário -->
+                        <div class="col-md-12 mb-8">
+                            <button id="gerasenha" class="btn btn-primary" type="submit" name="executafuncao">
+                                <span id="spinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                                Enviar
+                            </button>
+                        </div>
+
+                        
+                    </div>
+
+                    
+                </form>
+                <div id="card-contatos">
+                    <p>Dúvidas?</p>
+                    <p>email: saucontas@unicamp.br</p>
                 </div>
-
-                <br>
-
-                
-
-                
             </div>
+            <br>
+        </div>
+    </div>
 
-            
-            
-            
-        </div>
-        <div>
-            <footer class="footer">
-                <div>
-                    <p class="text-center text-muted">Desenvolvido por DINF-HC UNICAMP</p>
-                </div>
-            </footer>
-        </div>
-        
-        
-    </body> 
-    <script>
-        $(document).ready(function(){
+    <div>
+        <footer class="footer">
+            <div>
+                <p class="text-center text-muted">Desenvolvido por DINF-HC UNICAMP</p>
+            </div>
+        </footer>
+    </div>
+
+    <button>
+    
+</body>
+
+<script>
+    $(document).ready(function() {
         // Inicializa os popovers
-        $('[data-toggle="popover"]').popover();   
-        });
-    </script>
-</html>
+        $('[data-toggle="popover"]').popover();
+    });
+</script>
 
+
+<script>
+    $(document).ready(function(){
+        
+        $('#spinner').addClass('d-none');
+
+        $('#gerasenha').click(function() {
+            
+            $('#spinner').removeClass('d-none');
+        });
+    });
+
+    
+    $(window).on('load', function () {
+        $('#spinner').addClass('d-none');
+    });
+</script>
+
+
+
+</html>
