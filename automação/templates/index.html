@@ -80,9 +80,10 @@
                     <div class="col-md-12 mb-8">
                         <!-- Adicione isso ao seu formulário -->
                         <div class="col-md-12 mb-8">
-                            <button id="gerasenha" class="btn btn-primary" type="submit" name="executafuncao">
+
+                            <button id="gerasenha" class="btn btn-primary" type="submit" name="executafuncao">Enviar
                                 <span id="spinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
-                                Enviar
+                                
                             </button>
                         </div>
 
@@ -119,23 +120,22 @@
     });
 </script>
 
-
 <script>
     $(document).ready(function(){
-        
-        $('#spinner').addClass('d-none');
-
-        $('#gerasenha').click(function() {
-            
-            $('#spinner').removeClass('d-none');
-        });
+       $('#spinner').addClass('d-none');
+ 
+       $('#gerasenha').click(function() {
+          $('#spinner').removeClass('d-none');
+          $(this).html('Enviando...');
+       });
     });
-
-    
+ 
     $(window).on('load', function () {
-        $('#spinner').addClass('d-none');
+       $('#spinner').addClass('d-none');
     });
-</script>
+ </script>
+ 
+
 
 
 

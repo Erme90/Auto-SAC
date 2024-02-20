@@ -10,8 +10,7 @@ from selenium.common.exceptions import NoSuchElementException, WebDriverExceptio
 from time import sleep
 from decouple import Config, Csv
 from dotenv import load_dotenv
-import smtplib
-import email.message
+
 
 def inicia_webdriver():
     options = Options()
@@ -50,52 +49,8 @@ class Formulario(forms.Form):
     email_usuario = forms.EmailField(required=True, error_messages={'required': 'Campo obrigatório.'})
     vinculo = forms.ChoiceField(choices=[('', 'Selecione um vínculo'),('Funcamp', 'Funcamp'), ('Unicamp', 'Unicamp')], required=True, error_messages={'required': 'Selecione um vinculo.'})
 
-def enviar_email(email_usuario, usuario_desejado, senha_provisoria, nome_completo):  
-    corpo_email = f"""
-    <p>Olá {nome_completo}</p>
-    <p>O seu usuário <strong>{usuario_desejado}</strong> foi criado com sucesso e sua senha provisória é <strong>{senha_provisoria}</strong>. !</p>
-    <br>    
-    <P style="color: #f00;">LEIA ATENTAMENTE AS INSTRUÇÕES DESTA MENSAGEM, INCLUSIVE OS LINKS IMPORTANTES LOGO ABAIXO.</P>
-    <br>
-    <P># A senha contida neste e-mail, deverá ser trocada antes do primeiro acesso, para isso, clique no link relacionado abaixo e siga os passos da página.</P>
-    <P># Este username criado, também é seu e-mail institucional ({usuario_desejado}@unicamp.br)</P> 
-    <br>   
-    <p>Links Importantes:</p>
-
-
-    <p> Para efetuar a troca de senha: </p>
-
-    <p> https://www1.sistemas.unicamp.br/TrocarSenha/trocarsenha.do </p>
-
-
-    <p> Para acesso ao email institucional, após a troca da senha:</p>
-
-    <p>https://webmail.unicamp.br</p>
-
-    <p>Para recuperação de senha, em caso de esquecimentos ou problemas de acesso:</p>
-
-    <p>https://www1.sistemas.unicamp.br/TrocarSenha/trocarsenhaesquecimento.do</p>
-
-
-    <p>Para efetuar o acesso a rede wifi/vpn, após a troca da senha, SIGA à Risca  lendo o conteúdo completo dos procedimentos existentes no link abaixo:</p>
-
-    <p>http://www.ccuec.unicamp.br/ccuec/catalogo/redes-vpn-e-redes-sem-fio-wi-fi </p>
-    """
-
-    msg = email.message.Message()
-    msg['Subject'] = "Criação de usuário Sise"
-    msg['From'] = usuario_gmail
-    msg['To'] = email_usuario
-    password = senha_gmail
-    msg.add_header('Content-Type', 'text/html')
-    msg.set_payload(corpo_email )
-    s = smtplib.SMTP('smtp.gmail.com: 587')
-    s.starttls()
-    # Credenciais para login no email.
-    s.login(msg['From'], password)
-    s.sendmail(msg['From'], [msg['To']], msg.as_string().encode('utf-8'))
-
 #Esta função faz a execução do selenium para criação da senha nova (primeira senha) do SISE.
+
 def cria_usuario(request):
     navegador = inicia_webdriver()
     if request.method == 'POST':
@@ -149,7 +104,7 @@ def cria_usuario(request):
             form.add_error = (None, 'ERRO: Username não está dentro dos padrões, tente novamente')    
             return render (request, 'index.html', {'form': form})     
         
-        liberacao_de_senha(usuario_desejado, email_usuario, nome_completo)
+        #liberacao_de_senha(usuario_desejado, email_usuario, nome_completo)
        
         return redirect ('sucesso')
 
@@ -157,7 +112,7 @@ def cria_usuario(request):
 #Esta função, será chamada pela função "cria_usuario", para iniciar o processo de liberação e envio da senha ao usuário e também chamará a função
 # de envio do email com instruções.
 
-def liberacao_de_senha(usuario_desejado, email_usuario, nome_completo):
+'''def liberacao_de_senha(usuario_desejado):
     print('entrou no "liberação de senha"')  
     navegador = inicia_webdriver()
     navegador.get('https://www.sistemas.unicamp.br/servlet/pckSsegLiberacaoSenha.LiberacaoSenha')   #site que será automatizado.
@@ -166,8 +121,8 @@ def liberacao_de_senha(usuario_desejado, email_usuario, nome_completo):
     navegador.find_element('xpath', '/html/body/form/div/div/div/div/table[2]/tbody/tr/td/table/tbody/tr/td[1]/input').click()
     navegador.find_element('xpath', f"//tr/td/input[@value='{usuario_desejado}']").click()
     navegador.find_element(By.NAME, 'cmdAvancar').click()
-    navegador.find_element(By.NAME, 'cmdAvancar').click()
+    navegador.find_element(By.NAME, 'cmdAvancar').click()'''
     #armazena a senha provisória capturada na página
-    senha_provisoria = navegador.find_element('xpath', '/html/body/form/b[3]').text
+    #senha_provisoria = navegador.find_element('xpath', '/html/body/form/b[3]').text
     #navegador.find_element(By.NAME, 'cmdConfirmar').click()
-    enviar_email(email_usuario, usuario_desejado, senha_provisoria, nome_completo)
+    #enviar_email(email_usuario, usuario_desejado, senha_provisoria, nome_completo)
